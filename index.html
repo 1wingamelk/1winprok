@@ -10,7 +10,6 @@
     <link rel="apple-touch-icon" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
     <title>Games</title>
-    <script defer="defer" src="asset/static/js/auth.js"></script>
     <script defer="defer" src="asset/static/js/wallet.js"></script>
     <script defer="defer" src="asset/static/js/pcWallet.js"></script>
     <script defer="defer" src="asset/static/js/getBalance.js"></script>
@@ -29,180 +28,176 @@
     <script>
         function handleEditBalance() {
           const newBalance = prompt('Enter new balance:');
-          if (newBalance === null || newBalance === '') return;
-          
-          const accessKey = localStorage.getItem('access_key');
-          if (!accessKey) {
-              alert('Please login first');
-              return;
+          if (newBalance) {
+            // Send new balance to the server
+            fetch('/update_balance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Access-Key': localStorage.getItem('access_key') // Ensure access key is sent
+                },
+                body: JSON.stringify({ balance: newBalance })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Balance updated successfully!');
+                    // Update the displayed balance
+                    const balanceElement = document.querySelector('.HeaderBalanceInfo_balance_Gw9TU');
+                    if (balanceElement) {
+                        balanceElement.innerHTML = newBalance;
+                    }
+                } else {
+                    alert('Failed to update balance: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating balance:', error);
+                alert('An error occurred while updating balance.');
+            });
           }
-          
-          fetch('/update_balance', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'X-Access-Key': accessKey
-              },
-              body: JSON.stringify({
-                  balance: parseFloat(newBalance)
-              })
-          })
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  const walletValue = document.getElementById('walletValue');
-                  if (walletValue) {
-                      walletValue.textContent = `${data.new_balance} ₽`;
-                  }
-              } else {
-                  alert('Error: ' + data.error);
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
-              alert('Failed to update balance');
-          });
         }
-      </script>
-    <script defer="defer" src="asset/static/js/runtime.22af2a51cfdb2a24933e.js"></script>
-    <script defer="defer" src="asset/static/js/main.4cb48290bcd4e9a02429.js"></script>
-    <link href="asset/static/css/main.4a7afb73.css" rel="stylesheet">
-    <script>
-    // Обработчик сообщений от родительского окна
-    window.addEventListener('message', function(event) {
-        console.log('Received message:', event.data);
-        if (event.data && event.data.type === 'setLanguage') {
-            console.log('Setting language to:', event.data.lang);
-            window.setLanguage(event.data.lang);
-        }
-    });
-
-    // Сообщаем родителю что мы готовы
-    window.onload = function() {
-        window.parent.postMessage({
-            type: 'iframeReady',
-            currentLang: window.currentGameLang
-        }, '*');
-    };
     </script>
-     
     <style>
-        /* Фон с размытием */
-        .swal2-container {
+        /* SweetAlert2 custom styles */
+        .swal2-popup {
+            background: rgba(28, 32, 51, 0.9) !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
             backdrop-filter: blur(10px) !important;
             -webkit-backdrop-filter: blur(10px) !important;
-            background: rgba(0, 0, 0, 0.2) !important;
+            color: #fff !important;
         }
 
-        /* Модальное окно */
-        .swal2-popup {
-            background: rgba(28, 32, 40, 0.8) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            padding: 30px !important;
-            border-radius: 12px !important;
-            width: 320px !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
-            backdrop-filter: blur(4px) !important;
-            -webkit-backdrop-filter: blur(4px) !important;
-        }
-
-        /* Заголовок */
         .swal2-title {
-            font-size: 24px !important;
             color: #fff !important;
-            margin-bottom: 20px !important;
-            text-align: center !important;
-            font-weight: 500 !important;
         }
 
-        /* Поле ввода */
-        .swal2-input {
-            width: 100% !important;
-            padding: 12px !important;
-            margin: 10px 0 !important;
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 6px !important;
-            font-size: 16px !important;
+        .swal2-html-container {
+            color: #97a3cb !important;
+        }
+
+        .swal2-styled.swal2-confirm {
+            background-color: #2563eb !important;
             color: #fff !important;
-            transition: all 0.2s ease !important;
-            box-shadow: none !important;
-        }
-
-        .swal2-input:focus {
-            outline: none !important;
-            border-color: rgba(255, 255, 255, 0.3) !important;
-            background: rgba(255, 255, 255, 0.1) !important;
-        }
-
-        .swal2-input::placeholder {
-            color: rgba(255, 255, 255, 0.3) !important;
-        }
-
-        /* Кнопки */
-        .swal2-actions {
-            margin-top: 20px !important;
-        }
-
-        .swal2-confirm {
-            width: 100% !important;
-            padding: 12px !important;
-            background: #2563eb !important;
             border: none !important;
-            border-radius: 6px !important;
-            color: #fff !important;
+            border-radius: 8px !important;
             font-size: 16px !important;
-            font-weight: 500 !important;
-            cursor: pointer !important;
-            transition: all 0.2s ease !important;
+            padding: 10px 20px !important;
         }
 
-        .swal2-confirm:hover {
-            background: #1d4ed8 !important;
+        .swal2-styled.swal2-cancel {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 16px !important;
+            padding: 10px 20px !important;
         }
 
-        .swal2-cancel {
-            display: none !important; /* Скрываем кнопку отмены */
+        /* Анимация для исчезающей иконки SweetAlert2 */
+        .swal2-icon.swal2-success.swal2-animate-success-icon .swal2-success-ring {
+            opacity: 0;
+            animation: swal2-animate-success-ring 0.3s forwards ease-out;
         }
 
-        /* Сообщения об ошибках */
-        .swal2-validation-message {
-            background: transparent !important;
-            color: #ef4444 !important;
-            margin-top: 10px !important;
-            text-align: center !important;
-            font-size: 14px !important;
-            padding: 0 !important;
-        }
-
-        /* Анимации */
-        .swal2-show {
-            animation: modal-show 0.3s ease-out !important;
-        }
-
-        @keyframes modal-show {
+        @keyframes swal2-animate-success-ring {
             0% {
-                transform: scale(0.9);
                 opacity: 0;
             }
             100% {
-                transform: scale(1);
                 opacity: 1;
             }
         }
 
-        .swal2-hide {
-            animation: modal-hide 0.2s ease-in !important;
+        .swal2-icon.swal2-success .swal2-success-circular-line-left,
+        .swal2-icon.swal2-success .swal2-success-circular-line-right,
+        .swal2-icon.swal2-success .swal2-success-fix {
+            opacity: 0;
         }
 
-        @keyframes modal-hide {
+        .swal2-icon.swal2-success.swal2-animate-success-icon .swal2-success-line-tip,
+        .swal2-icon.swal2-success.swal2-animate-success-icon .swal2-success-line-long {
+            opacity: 0;
+            animation: swal2-animate-success-line 0.3s forwards ease-out;
+            animation-delay: 0.1s; /* Задержка для линий, чтобы кольцо появилось первым */
+        }
+
+        @keyframes swal2-animate-success-line {
             0% {
-                transform: scale(1);
-                opacity: 1;
+                opacity: 0;
             }
             100% {
-                transform: scale(0.9);
+                opacity: 1;
+            }
+        }
+
+        .swal2-icon.swal2-error.swal2-animate-error-icon .swal2-x-mark {
+            opacity: 0;
+            animation: swal2-animate-error-x-mark 0.3s forwards ease-out;
+        }
+
+        @keyframes swal2-animate-error-x-mark {
+            0% {
                 opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .swal2-container {
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+
+        /* Общие стили для кнопки */
+        .app-button {
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .app-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Стили для маленькой кнопки */
+        .app-button.small {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        /* Стили для кнопок в поп-апах */
+        .app-popup__buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .app-popup__buttons .app-button {
+            flex-grow: 1;
+        }
+
+        /* Анимация для появления модального окна */
+        .swal2-container.swal2-backdrop-show .swal2-popup {
+            animation: swal2-fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes swal2-fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
@@ -241,16 +236,16 @@
         <button type="button" class="app-button px-2 mx-2 small cursor-pointer" onclick="handleEditBalance()">
             <div class="flex items-center gap-1">
                 <div>
-                    <svg width="24" height="24" viewbox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- ... svg path ... -->
+                    <svg width="24" height="24" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="#8A92B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M12 7.75V12.25" stroke="#8A92B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M9.75 10.25H14.25" stroke="#8A92B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M12 16.25V12.25" stroke="#8A92B3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
                     </svg>
                 </div>
-                <span id="walletValue">0 $</span>
+                <div>Баланс</div>
             </div>
         </button>
     </div>
 </body>
-
 </html>
-
-
