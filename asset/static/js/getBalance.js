@@ -22,26 +22,28 @@ function updateBalanceDisplay(balance, currency) {
 }
 
 function getAccessKey() {
-    const parentWindow = window.parent || window;
-    return parentWindow.localStorage.getItem('access_key') || 
-           parentWindow.localStorage.getItem('accessKey') || 
-           parentWindow.localStorage.getItem('key');
+    // Если вы хотите полностью удалить логику access key, эта функция может возвращать null.
+    // Если ваш бэкенд все еще требует ключ, но вы хотите обойти фактическую аутентификацию,
+    // вы можете вернуть предопределенный, нечувствительный фиктивный ключ.
+    return null;
 }
 
 let updateInterval = null;
 
 function fetchBalance() {
-    const accessKey = getAccessKey();
-    if (!accessKey) {
-        console.error('Access key not found');
-        return;
-    }
+    // Удалена проверка access key.
+    // const accessKey = getAccessKey();
+    // if (!accessKey) {
+    //     console.error('Access key not found');
+    //     return;
+    // }
 
     fetch('/get_balance', {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'X-Access-Key': accessKey
+            'Content-Type': 'application/json'
+            // Удален заголовок 'X-Access-Key', если он не нужен вашему бэкенду без аутентификации
+            // 'X-Access-Key': accessKey 
         }
     })
     .then(response => response.json())
@@ -49,7 +51,7 @@ function fetchBalance() {
         if (data.success) {
             updateBalanceDisplay(data.balance, data.currency);
         } else {
-            console.error('Error fetching balance:', data.error);
+            console.error('Failed to fetch balance:', data.error);
         }
     })
     .catch(error => console.error('Error:', error));
@@ -104,4 +106,4 @@ window.forceBalanceUpdate = function() {
     fetchBalance();
 };
 
-window.addEventListener('beforeunload', stopUpdates); 
+window.addEventListener('beforeunload', stopUpdates);
