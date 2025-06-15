@@ -49,34 +49,40 @@ function updatePCBalance(balance, currency = 'RUB') {
                     .replace(/&nbsp;/g, '')
                     .replace(/₽/g, '')
                     .trim();
-                balanceElement.textContent = content;
+                if (content.endsWith(',')) {
+                    content = content.slice(0, -1);
+                }
+                balanceElement.innerHTML = content + '&nbsp;' + (currencyNameElement ? currencyNameElement.textContent : '₽');
+            } else if (currencyNameElement) {
+                balanceElement.innerHTML = content + '&nbsp;' + currencyNameElement.textContent;
+            } else {
+                balanceElement.innerHTML = content + '&nbsp;₽';
             }
         }
-
-        if (currencyNameElement) {
-            currencyNameElement.textContent = currency;
-        }
     } finally {
-
         isUpdating = false;
     }
 }
 
+function getAccessKey() {
+    // Аналогично getBalance.js, верните null или фиктивный ключ.
+    return null;
+}
+
 function fetchBalance() {
-    const accessKey = localStorage.getItem('access_key') || 
-                    localStorage.getItem('accessKey') || 
-                    localStorage.getItem('key');
-                    
-    if (!accessKey) {
-        console.error('Access key not found');
-        return;
-    }
+    // Удалена проверка access key.
+    // const accessKey = getAccessKey();
+    // if (!accessKey) {
+    //     console.error('Access key not found');
+    //     return;
+    // }
 
     fetch('/get_balance', {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'X-Access-Key': accessKey
+            'Content-Type': 'application/json'
+            // Удален заголовок 'X-Access-Key', если он не нужен вашему бэкенду без аутентификации
+            // 'X-Access-Key': accessKey 
         }
     })
     .then(response => response.json())
